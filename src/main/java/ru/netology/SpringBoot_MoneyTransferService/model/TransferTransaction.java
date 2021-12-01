@@ -17,14 +17,12 @@ public class TransferTransaction {
     @NotBlank
     @Size(min = 16, max = 16)
     private String cardToNumber;
-    @NotNull
-    @Positive
-    private Integer amount;
+    private Amount amount;
 
     public TransferTransaction() {
     }
 
-    public TransferTransaction(String cardFromNumber, String cardFromValidTill, String cardFromCVV, String cardToNumber, Integer amount) {
+    public TransferTransaction(String cardFromNumber, String cardFromValidTill, String cardFromCVV, String cardToNumber, Amount amount) {
         this.cardFromNumber = cardFromNumber;
         this.cardFromValidTill = cardFromValidTill;
         this.cardFromCVV = cardFromCVV;
@@ -64,11 +62,11 @@ public class TransferTransaction {
         this.cardToNumber = cardToNumber;
     }
 
-    public Integer getAmount() {
+    public Amount getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(Amount amount) {
         this.amount = amount;
     }
 }

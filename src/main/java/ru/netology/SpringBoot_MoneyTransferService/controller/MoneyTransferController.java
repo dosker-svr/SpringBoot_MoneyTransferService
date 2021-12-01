@@ -11,38 +11,49 @@ import ru.netology.SpringBoot_MoneyTransferService.model.TransferTransaction;
 import ru.netology.SpringBoot_MoneyTransferService.service.CardService;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Map;
 
 @RestController
+@CrossOrigin
 @Validated
 public class MoneyTransferController {
     @Autowired
     private CardService cardService;
 
-    @GetMapping
-    public String getInterface() {
-        return "card-transfer";
+    /*@PostMapping("/transfer")
+    public String getGet(@RequestBody String text) {
+        System.out.println(text);
+        return "String";
+    }*/
+
+    @PostMapping("/transfer")
+    public String postCardTransfer(@Valid @RequestBody TransferTransaction transaction) {
+        System.out.print("Какая карта пришла:");
+        System.out.println(transaction.getCardFromNumber() + "|||" + transaction.getCardFromValidTill() + "|||" + transaction.getCardFromCVV() + "|||" + transaction.getCardToNumber() + "|||" + transaction.getAmount().getValue());
+        Card cardSender = null;
+        Card cardRecipient = null;
+        try {
+            cardSender = cardService.checkSenderCard(transaction);
+            cardRecipient = cardService.checkRecipientCard(transaction.getCardToNumber());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (!cardService.transferOfAmount(cardSender, cardRecipient, transaction.getAmount().getValue())) {
+                return "Operation failed";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "0000";
     }
 
-    @PostMapping
-    public String postCardTransfer(@Valid @RequestBody TransferTransaction transaction) {
-        /*@Valid @CardArgument Card card
-                                   @RequestParam(name = "cardFromNumber") String cardFromNumber,
-                                   @RequestParam(name = "cardFromValidTill") String cardFromValidTill,
-                                   @RequestParam(name = "cardFromCVV") String cardFromCVV,
-                                   @RequestParam(name = "cardToNumber") String cardToNumber,
-                                   @RequestParam(name = "amount") Integer amount*/
-
-
-        System.out.println("Какая карта пришла:");
-        System.out.println(transaction.getCardFromNumber() + "|||" + transaction.getCardFromValidTill() + "|||" + transaction.getCardFromCVV() + "|||" + transaction.getCardToNumber() + "|||" + transaction.getAmount());
-        Card cardSender = cardService.checkSenderCard(
-                transaction.getCardFromNumber(),
-                transaction.getCardFromValidTill(),
-                transaction.getCardFromCVV());
-        Card cardRecipient = cardService.checkRecipientCard(transaction.getCardToNumber());
-        cardService.transferOfAmount(cardSender, cardRecipient, Double.valueOf(transaction.getAmount()));
-
-        return "Успешный платёж";
+    @PostMapping("/confirmOperation")
+    public void postConfirmOperation() {
+        //return "ConfirmOperation";
     }
 }

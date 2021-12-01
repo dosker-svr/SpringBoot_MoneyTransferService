@@ -11,15 +11,13 @@ public class CardsRepository {
     private final static Map<String, Card> cardMap = new HashMap<>();
     private static Double serviceProfit = 0.0;
 
-    public void transferOfAmountFromSender(Card senderCard, Card recipientCard, Double amount, Double amountWithCommission) {
+    public boolean transferOfAmountFromSender(Card senderCard, Card recipientCard, Double amount, Double amountWithCommission) {
         serviceProfit = serviceProfit + (amountWithCommission - amount);
-        System.out.println("Сумма на счету отправителя *" + senderCard.getCardNumber().substring(12) + " до операции: " + senderCard.getCardAmount());
-        System.out.println("Сумма на счету получателя *" + recipientCard.getCardNumber().substring(12) + " до операции: " + recipientCard.getCardAmount());
 
         senderCard.setCardAmount(senderCard.getCardAmount() - amountWithCommission);
-        System.out.println("Сумма на счету отправителя *" + senderCard.getCardNumber().substring(12) + " : " + senderCard.getCardAmount());
         recipientCard.setCardAmount(recipientCard.getCardAmount() + amount);
-        System.out.println("Сумма на счету получателя *" + recipientCard.getCardNumber().substring(12) + " : " + recipientCard.getCardAmount());
+
+        return true;
     }
 
     public Card findCard(String cardNumber) {
@@ -30,14 +28,14 @@ public class CardsRepository {
     public static void createCards() {
         final Long baseNumCard = 4276_8440_2988_1000L;
         final String baseValidTill = "11/25";
-        final Long baseCVV = 0L;
+        final String baseCVV = "00";
         final Double baseAmount = 1000.00;
 
         for (int i = 0; i < 10; i++ ) {
             Card card = new Card(
                     String.valueOf(baseNumCard + i),
                     baseValidTill,
-                    String.valueOf(baseCVV + i));
+                    (baseCVV + i));
             card.setCardAmount(baseAmount + (i * 100));
             cardMap.put(card.getCardNumber(), card);
             System.out.println("Создали карту - " + card);

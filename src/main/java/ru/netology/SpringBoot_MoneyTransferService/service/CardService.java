@@ -8,14 +8,12 @@ import ru.netology.SpringBoot_MoneyTransferService.repository.CardsRepository;
 import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.CardNotFoundException;
 import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.CvvCodeInvalidException;
 import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.ExpirationDateNotFoundException;
-import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.NotEnoughMoney;
+import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.NotEnoughMoneyException;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,35 +33,54 @@ public class CardService {
     @Autowired
     private CardsRepository cardRepository;
 
-    public Card checkSenderCard(TransferTransaction transaction) throws IOException {
+    public Card checkSenderCard(TransferTransaction transaction) {
         String cardFromNumber = transaction.getCardFromNumber();
         String cardFromValidTill = transaction.getCardFromValidTill();
         String cardFromCVV = transaction.getCardFromCVV();
 
-        writer.write((dateTime() +
-                "Attempted transaction.\n" +
-                "From Card Number: " + transaction.getCardFromNumber() + ", " +
-                "Date till: " + transaction.getCardFromValidTill() + ", " +
-                "CVV: " + transaction.getCardFromCVV() + ", " +
-                "To Card Number: " + transaction.getCardToNumber() + ", " +
-                "Amount: " + (transaction.getAmount().getValue() / 100) + " " + transaction.getAmount().getCurrency() + ".\n"));
+        try {
+            writer.write((dateTime() +
+                    "Attempted transaction.\n" +
+                    "From Card Number: " + transaction.getCardFromNumber() + ", " +
+                    "Date till: " + transaction.getCardFromValidTill() + ", " +
+                    "CVV: " + transaction.getCardFromCVV() + ", " +
+                    "To Card Number: " + transaction.getCardToNumber() + ", " +
+                    "Amount: " + (transaction.getAmount().getValue() / 100) + " " + transaction.getAmount().getCurrency() + ".\n"));
+        } catch (IOException ex) {
+
+        }
 
         Card cardSender = cardRepository.findCard(cardFromNumber);
 
         if (cardSender == null) {
-            writer.write("Card Sender (" + transaction.getCardFromNumber() + ") NOT FOUND.\n");
+            try {
+                writer.write("Card Sender (" + transaction.getCardFromNumber() + ") NOT FOUND.\n");
+            } catch (IOException ex) {
+
+        }
+            System.out.println("The card not found!!!!!!!");
             throw new CardNotFoundException("The card not found");
             // TODO: throw new CardNotFoundException("The card not found");
         }
 
         if (!cardSender.getCardValidTill().equals(cardFromValidTill)) {
-            writer.write("Expiration Date (" + transaction.getCardFromValidTill() + ") IS INVALID.\n");
+            try {
+                writer.write("Expiration Date (" + transaction.getCardFromValidTill() + ") IS INVALID.\n");
+            } catch (IOException ex) {
+
+            }
+            System.out.println("Expiration date is invalid!!!!!!!");
             throw new ExpirationDateNotFoundException("Expiration date is invalid");
             /// TODO: throw new ExpirationDateNotFoundException("Expiration date is invalid");
         }
 
         if (!cardSender.getCardCVV().equals(cardFromCVV)) {
-            writer.write("CVV code (" + transaction.getCardFromCVV() + ") IS INVALID.\n");
+            try {
+                writer.write("CVV code (" + transaction.getCardFromCVV() + ") IS INVALID.\n");
+            } catch (IOException ex) {
+
+            }
+            System.out.println("CVV code is invalid!!!!!!!");
             throw new CvvCodeInvalidException("CVV code is invalid");
             // TODO: throw new CvvCodeInvalidException("CVV code is invalid");
         }
@@ -71,41 +88,58 @@ public class CardService {
         return cardSender;
     }
 
-    public Card checkRecipientCard(String cardNumber) throws IOException {
+    public Card checkRecipientCard(String cardNumber) {
         Card recipientCard = cardRepository.findCard(cardNumber);
         if (recipientCard == null) {
-            writer.write("Card recipient (" + cardNumber + ") NOT FOUND.\n");
+            try {
+                writer.write("Card recipient (" + cardNumber + ") NOT FOUND.\n");
+            } catch (IOException ex) {
+
+            }
+            System.out.println("The card recipient not found!!!!!!!");
             throw new CardNotFoundException("The card recipient not found");
             // TODO: throw new CardNotFoundException("The card ecipient not found");
         }
         return recipientCard;
     }
 
-    public boolean transferOfAmount(Card senderCard, Card recipientCard, Integer amount) throws IOException {
+    public boolean transferOfAmount(Card senderCard, Card recipientCard, TransferTransaction transaction) {
         Integer twoZero = 100;
-        amount = amount / twoZero;
+        Integer amount = transaction.getAmount().getValue() / twoZero;
 
         Double amountDouble = Double.valueOf(amount);
         Double amountWithCommission = amountDouble + (amountDouble * CardService.COMMISSION);
         System.out.println("Размер списания: " + amountWithCommission);
 
         if (senderCard.getCardAmount() - amountWithCommission < 0) {
-            writer.write("Not enough money on the Сard: " + senderCard.getCardNumber() + ".\n");
-            throw new NotEnoughMoney("Not enough money on the card");
-            // TODO: throw new NotEnoughMoney("Not enough money on the card");
+            try {
+                writer.write("Not enough money on the Сard: " + senderCard.getCardNumber() + ".\n");
+            } catch (IOException ex) {
+
+            }
+            System.out.println("Not enough money on the card!!!!!!!");
+            throw new NotEnoughMoneyException("Not enough money on the card");
+            // TODO: throw new NotEnoughMoneyException("Not enough money on the card");
         }
 
-        writer.write("Размер списания: " + amountWithCommission + ".\n" +
-                "Сумма после спиания на счету отправителя *" + senderCard.getCardNumber().substring(12) + " : " + senderCard.getCardAmount() + ".\n" +
-                "Сумма после спиания на счету получателя *" + recipientCard.getCardNumber().substring(12) + " : " + recipientCard.getCardAmount() + ".\n");
+        boolean result = cardRepository.transferOfAmountFromSender(senderCard, recipientCard, amountDouble, amountWithCommission);
+
+        try {
+            writer.write("Размер списания: " + amountWithCommission + ".\n" +
+                    "Сумма после спиания на счету отправителя *" + senderCard.getCardNumber().substring(12) + " : " + senderCard.getCardAmount() + ".\n" +
+                    "Сумма после спиания на счету получателя *" + recipientCard.getCardNumber().substring(12) + " : " + recipientCard.getCardAmount() + ".\n");
         writer.flush();
         writer.close();
+        } catch (IOException ex) {
 
-        return cardRepository.transferOfAmountFromSender(senderCard, recipientCard, amountDouble, amountWithCommission);
+        }
+        transaction.setIdTransaction(TransferTransaction.idCounter++);
+
+        return result;
     }
 
     private static String dateTime() {
-        String DATETIME_format = "HH:mm:ss | yy-MM-dd";
+        String DATETIME_format = "HH:mm:ss | dd-MM-yy";
         DateFormat dateFormat = new SimpleDateFormat(DATETIME_format);
         Date date = new Date();
         return (dateFormat.format(date) + " ==========================================================================================================\n");

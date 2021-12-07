@@ -6,6 +6,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 public class TransferTransaction {
+    public static Integer idCounter = 0;
+
     @NotBlank
     @Size(min = 16, max = 16)
     private String cardFromNumber;
@@ -18,6 +20,7 @@ public class TransferTransaction {
     @Size(min = 16, max = 16)
     private String cardToNumber;
     private Amount amount;
+    private Integer idTransaction;
 
     public TransferTransaction() {
     }
@@ -68,5 +71,13 @@ public class TransferTransaction {
 
     public void setAmount(Amount amount) {
         this.amount = amount;
+    }
+
+    public void setIdTransaction(Integer idTransaction) {
+        this.idTransaction = idTransaction;
+    }
+
+    public Integer getIdTransaction() {
+        return idTransaction;
     }
 }

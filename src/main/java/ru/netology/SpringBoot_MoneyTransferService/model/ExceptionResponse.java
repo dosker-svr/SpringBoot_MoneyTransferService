@@ -1,6 +1,5 @@
 package ru.netology.SpringBoot_MoneyTransferService.model;
 
-import org.springframework.web.bind.annotation.ResponseBody;
 
 public class ExceptionResponse {
     private String message;

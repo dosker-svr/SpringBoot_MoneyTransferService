@@ -11,6 +11,7 @@ import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.Expiration
 import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.NotEnoughMoneyException;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -19,12 +20,19 @@ import java.util.Date;
 
 @Service
 public class CardService {
+    public static final String LOG_FILE = "./easyLog/easyLog.txt";
     public static final Double COMMISSION = 0.01;
     private static BufferedWriter writer;
 
     static {
         try {
-            writer = new BufferedWriter(new FileWriter("src/main/resources/log/log.txt", true));
+            File file = new File(LOG_FILE);
+            if (!file.exists()) {
+                new File("./easyLog").mkdir();
+                boolean isCreated = file.createNewFile();
+            }
+            writer = new BufferedWriter(new FileWriter(LOG_FILE, true));
+                    //src/main/resources/log/log.txt
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,8 +67,7 @@ public class CardService {
 
         }
             System.out.println("The card not found!!!!!!!");
-            throw new CardNotFoundException("The card not found");
-            // TODO: throw new CardNotFoundException("The card not found");
+            throw new CardNotFoundException("Карта отправителя платежа с номером *" + cardFromNumber.substring(12) + " не найдена");
         }
 
         if (!cardSender.getCardValidTill().equals(cardFromValidTill)) {
@@ -70,8 +77,7 @@ public class CardService {
 
             }
             System.out.println("Expiration date is invalid!!!!!!!");
-            throw new ExpirationDateNotFoundException("Expiration date is invalid");
-            /// TODO: throw new ExpirationDateNotFoundException("Expiration date is invalid");
+            throw new ExpirationDateNotFoundException("Неверно указан срок действия карты");
         }
 
         if (!cardSender.getCardCVV().equals(cardFromCVV)) {
@@ -81,8 +87,7 @@ public class CardService {
 
             }
             System.out.println("CVV code is invalid!!!!!!!");
-            throw new CvvCodeInvalidException("CVV code is invalid");
-            // TODO: throw new CvvCodeInvalidException("CVV code is invalid");
+            throw new CvvCodeInvalidException("CVV код указан неверно");
         }
 
         return cardSender;
@@ -97,8 +102,7 @@ public class CardService {
 
             }
             System.out.println("The card recipient not found!!!!!!!");
-            throw new CardNotFoundException("The card recipient not found");
-            // TODO: throw new CardNotFoundException("The card ecipient not found");
+            throw new CardNotFoundException("Карта получателя платежа с номером *" + cardNumber.substring(12) + " не найдена");
         }
         return recipientCard;
     }
@@ -109,7 +113,7 @@ public class CardService {
 
         Double amountDouble = Double.valueOf(amount);
         Double amountWithCommission = amountDouble + (amountDouble * CardService.COMMISSION);
-        System.out.println("Размер списания: " + amountWithCommission);
+        System.out.println("Amount of payment: " + amountWithCommission);
 
         if (senderCard.getCardAmount() - amountWithCommission < 0) {
             try {
@@ -118,8 +122,7 @@ public class CardService {
 
             }
             System.out.println("Not enough money on the card!!!!!!!");
-            throw new NotEnoughMoneyException("Not enough money on the card");
-            // TODO: throw new NotEnoughMoneyException("Not enough money on the card");
+            throw new NotEnoughMoneyException("На карте *" + senderCard.getCardNumber().substring(12) + " недостаточно средств");
         }
 
         boolean result = cardRepository.transferOfAmountFromSender(senderCard, recipientCard, amountDouble, amountWithCommission);

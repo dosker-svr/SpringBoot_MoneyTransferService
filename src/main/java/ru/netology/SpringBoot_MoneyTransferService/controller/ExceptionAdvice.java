@@ -4,11 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import ru.netology.SpringBoot_MoneyTransferService.model.ExceptionResponse;
 import ru.netology.SpringBoot_MoneyTransferService.service.exceptions.*;
-
-import javax.servlet.http.HttpServletResponse;
 
 @RestControllerAdvice
 public class ExceptionAdvice {
@@ -16,7 +13,7 @@ public class ExceptionAdvice {
     private final Integer SOME_ID_500 = 500;
 
     @ExceptionHandler(CardNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handlerCardNotFound(CardNotFoundException ex, HttpServletResponse response) {
+    public ResponseEntity<ExceptionResponse> handlerCardNotFound(CardNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse(ex.getLocalizedMessage(), SOME_ID_400));
     }
 
@@ -26,7 +23,7 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(ExpirationDateNotFoundException.class)
-    public ResponseEntity<Object> handlerExpirationDateNotFound(ExpirationDateNotFoundException ex, WebRequest request) {
+    public ResponseEntity<Object> handlerExpirationDateNotFound(ExpirationDateNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse(ex.getLocalizedMessage(), SOME_ID_400));
     }
 

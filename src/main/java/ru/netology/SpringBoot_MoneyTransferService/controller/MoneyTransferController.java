@@ -22,7 +22,7 @@ public class MoneyTransferController {
 
     @PostMapping("/transfer")
     public String postCardTransfer(@Valid @RequestBody TransferTransaction transaction) {
-        System.out.print("Какая карта пришла:");
+        System.out.print("Request:");
         System.out.println(transaction.getCardFromNumber() + "|||" + transaction.getCardFromValidTill() + "|||" + transaction.getCardFromCVV() + "|||" + transaction.getCardToNumber() + "|||" + transaction.getAmount().getValue());
         Card cardSender = cardService.checkSenderCard(transaction);
         Card cardRecipient = cardService.checkRecipientCard(transaction.getCardToNumber());

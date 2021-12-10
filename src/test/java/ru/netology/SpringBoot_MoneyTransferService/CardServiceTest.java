@@ -29,7 +29,6 @@ public class CardServiceTest {
                 new Amount("RUR", 50000));
     }
 
-
     @Test
     public void checkSenderCardTest() {
         // When:
@@ -52,7 +51,10 @@ public class CardServiceTest {
         Card senderCard = cardService.checkSenderCard(transaction);
         Card recipientCard = cardService.checkRecipientCard(recipientCardNumber);
 
+        // When:
+        boolean result = cardService.transferOfAmount(senderCard, recipientCard, transaction);
+
         // Then:
-        Assertions.assertTrue(cardService.transferOfAmount(senderCard, recipientCard, transaction));
+        Assertions.assertTrue(result);
     }
 }

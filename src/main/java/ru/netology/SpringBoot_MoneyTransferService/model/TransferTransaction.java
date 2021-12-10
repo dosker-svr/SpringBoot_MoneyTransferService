@@ -1,12 +1,10 @@
 package ru.netology.SpringBoot_MoneyTransferService.model;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 public class TransferTransaction {
-    public static Integer idCounter = 0;
+    public static Long idCounter = 0l;
 
     @NotBlank
     @Size(min = 16, max = 16)
@@ -20,7 +18,7 @@ public class TransferTransaction {
     @Size(min = 16, max = 16)
     private String cardToNumber;
     private Amount amount;
-    private Integer idTransaction;
+    private Long idTransaction;
 
     public TransferTransaction() {
     }
@@ -73,11 +71,11 @@ public class TransferTransaction {
         this.amount = amount;
     }
 
-    public void setIdTransaction(Integer idTransaction) {
+    public void setIdTransaction(Long idTransaction) {
         this.idTransaction = idTransaction;
     }
 
-    public Integer getIdTransaction() {
+    public Long getIdTransaction() {
         return idTransaction;
     }
 }

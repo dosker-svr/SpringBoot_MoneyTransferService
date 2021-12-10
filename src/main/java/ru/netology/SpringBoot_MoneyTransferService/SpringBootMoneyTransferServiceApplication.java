@@ -8,7 +8,6 @@ import ru.netology.SpringBoot_MoneyTransferService.repository.CardsRepository;
 public class SpringBootMoneyTransferServiceApplication {
 
 	public static void main(String[] args) {
-		CardsRepository.createCards();
 		SpringApplication.run(SpringBootMoneyTransferServiceApplication.class, args);
 	}
 

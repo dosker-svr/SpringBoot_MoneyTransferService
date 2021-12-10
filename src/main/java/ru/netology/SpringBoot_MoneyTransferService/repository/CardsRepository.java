@@ -11,6 +11,10 @@ public class CardsRepository {
     private final static Map<String, Card> cardMap = new HashMap<>();
     private static Double serviceProfit = 0.0;
 
+    static {
+        createCards();
+    }
+
     public boolean transferOfAmountFromSender(Card senderCard, Card recipientCard, Double amount, Double amountWithCommission) {
         serviceProfit = serviceProfit + (amountWithCommission - amount);
 
@@ -38,7 +42,7 @@ public class CardsRepository {
                     (baseCVV + i));
             card.setCardAmount(baseAmount + (i * 100));
             cardMap.put(card.getCardNumber(), card);
-            System.out.println("Создали карту - " + card);
+            System.out.println("Created card - " + card);
         }
 
         Card cardWithExpiredDate = new Card(
